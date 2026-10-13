@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent
 STORY = ROOT / "data" / "story.json"
 OUTPUT = ROOT / "index.html"
 AUTHOR_NAMES = {"huahua": "花花", "goudan": "狗蛋", "dahuang": "大黄"}
+STORY_API_BASE = "https://qiaorenzhen-story-api.pages.dev"
 
 
 def escape(value: object) -> str:
@@ -140,6 +141,7 @@ def main() -> None:
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="engagement.css">
   <link rel="stylesheet" href="author.css">
+  <script>window.QIAORENZHEN_STORY_API_BASE = "{escape(STORY_API_BASE)}"; window.QIAORENZHEN_AUTHOR_API_BASE = "";</script>
   <script src="site.js" defer></script>
   <script src="engagement.js" defer></script>
   <script src="author.js" defer></script>

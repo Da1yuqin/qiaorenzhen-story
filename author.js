@@ -7,8 +7,11 @@
     ["activity", "正在做什么"], ["intention", "此刻想要什么"],
     ["knows", "视野内已知"], ["misunderstanding", "误会与未知"],
   ];
-  const apiSetting = window.QIAORENZHEN_AUTHOR_API_BASE || window.QIAORENZHEN_STORY_API_BASE || window.QIAORENZHEN_API_BASE || "";
+  const apiSetting = window.QIAORENZHEN_AUTHOR_API_BASE === undefined
+    ? window.QIAORENZHEN_STORY_API_BASE || window.QIAORENZHEN_API_BASE || ""
+    : window.QIAORENZHEN_AUTHOR_API_BASE;
   const apiBase = validApiBase(apiSetting);
+  const publicApiBase = validApiBase(window.QIAORENZHEN_STORY_API_BASE || window.QIAORENZHEN_API_BASE || "");
   const modeButtons = [...document.querySelectorAll("[data-story-mode]")];
   const loginPanel = document.querySelector("#author-login");
   const loginForm = document.querySelector("#author-login-form");
@@ -531,9 +534,11 @@
   }
 
   async function syncPublicChapters() {
-    if (!apiBase) return;
+    if (!publicApiBase) return;
     try {
-      const data = await api("/api/story");
+      const response = await fetch(`${publicApiBase}/api/story`, { cache: "no-store", mode: "cors" });
+      if (!response.ok) return;
+      const data = await response.json();
       if (Array.isArray(data.chapters)) for (const chapter of data.chapters) appendChapter(chapter);
     } catch { /* The published static chapters stay readable if the API is offline. */ }
   }
