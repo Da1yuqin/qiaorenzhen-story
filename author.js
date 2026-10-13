@@ -54,7 +54,7 @@
   }
 
   async function api(path, method = "GET", payload) {
-    if (!apiBase) throw new Error("作者服务尚未接入，暂时无法登录或续写。");
+    if (!apiBase) throw new Error("作者口令尚未配置，暂时无法登录或续写。");
     const headers = { Accept: "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
     if (payload !== undefined) headers["Content-Type"] = "application/json";
@@ -135,7 +135,7 @@
     }
     if (!apiBase) {
       loginPanel.hidden = false;
-      loginNote.textContent = "作者服务尚未接入；正文可以继续阅读。";
+      loginNote.textContent = "作者口令正在安全配置，续写入口暂未开放；正文可以继续阅读。";
       loginForm.querySelector('button[type="submit"]').disabled = true;
       loginPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
