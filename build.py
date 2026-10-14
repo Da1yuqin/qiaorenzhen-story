@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 STORY = ROOT / "data" / "story.json"
+SITE_LOG = ROOT / "data" / "site-log.json"
 OUTPUT = ROOT / "index.html"
 AUTHOR_NAMES = {"huahua": "花花", "goudan": "狗蛋", "dahuang": "大黄"}
 CHARACTER_SEALS = {"zhou": "茶", "jinyun": "药", "sanmei": "灯", "wangcai": "书", "tong": "账"}
@@ -122,8 +123,23 @@ def character_html(person: dict, index: int) -> str:
     )
 
 
+def site_log_html(entries: list[dict]) -> str:
+    items = []
+    for entry in entries:
+        date = entry["date"]
+        if not re.fullmatch(r"\d{4}(?:-\d{2}-\d{2})?", date):
+            raise ValueError(f"Invalid site log date: {date}")
+        items.append(
+            '<li><time datetime="' + escape(date) + '">' + escape(entry["label"]) + '</time>'
+            '<div><strong>' + escape(entry["title"]) + '</strong>'
+            '<p>' + escape(entry["summary"]) + '</p></div></li>'
+        )
+    return "\n".join(items)
+
+
 def main() -> None:
     story = json.loads(STORY.read_text(encoding="utf-8"))
+    site_log = json.loads(SITE_LOG.read_text(encoding="utf-8"))
     chapters = story["chapters"]
     if len(chapters) < 17 or len({chapter["id"] for chapter in chapters}) != len(chapters):
         raise ValueError("Expected at least the 17 distinct public chapters in this edition")
@@ -169,6 +185,12 @@ def main() -> None:
         <button type="button" class="quiet-button story-like" aria-pressed="false"><span class="heart-mark" aria-hidden="true">♡</span> 喜欢这个故事</button></div>
       <p class="like-save-note">喜欢会先记在当前浏览器。</p>
     </div><div class="hero-stamp">故事<br>未完</div>
+  </section>
+  <section class="opening-log" id="site-log" aria-labelledby="site-log-title">
+    <div class="opening-log-head"><div><div class="section-label"><span>开卷记录 · LOG</span><i></i></div>
+      <h2 id="site-log-title">从旧稿，到现在。</h2></div>
+      <a href="https://da1yuqin.github.io/blog/serial-fiction-making/">读制作手记 <span aria-hidden="true">↗</span></a></div>
+    <ol class="opening-log-list">{site_log_html(site_log)}</ol>
   </section>
   <section class="author-login" id="author-login" aria-labelledby="author-login-title" hidden>
     <div class="login-wrap"><div class="login-art" aria-hidden="true"><span>✧</span><span>卷</span><span>✧</span></div>
