@@ -79,7 +79,14 @@ def chapter_html(chapter: dict, index: int, art: dict | None) -> str:
     if not re.fullmatch(r"[a-z0-9-]+", chapter_id):
         raise ValueError(f"Invalid chapter id: {chapter_id}")
     author = chapter.get("author")
-    byline = '<div class="chapter-byline chapter-byline--unverified"><span class="chapter-author-seal" aria-hidden="true">考</span><strong>执笔待考</strong></div>'
+    author_hint = chapter.get("authorHint")
+    byline = (
+        '<div class="chapter-byline chapter-byline--unverified">'
+        '<span class="chapter-author-seal" aria-hidden="true">考</span>'
+        '<strong>执笔待考</strong>'
+        + (f'<small class="chapter-author-hint">{escape(author_hint)}</small>' if author_hint else "")
+        + '</div>'
+    )
     if author in AUTHOR_NAMES:
         published = chapter.get("publishedAt") or ""
         date = published[:10]
@@ -146,6 +153,22 @@ def site_log_html(entries: list[dict]) -> str:
     return "\n".join(items)
 
 
+def site_changelog_html(entries: list[dict]) -> str:
+    items = []
+    for entry in entries:
+        timestamp = entry["timestamp"]
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00", timestamp):
+            raise ValueError(f"Invalid site changelog timestamp: {timestamp}")
+        points = "".join(f"<li>{escape(point)}</li>" for point in entry["items"])
+        items.append(
+            '<li class="site-changelog-entry"><div class="site-changelog-entry-head">'
+            f'<time datetime="{escape(timestamp)}">{escape(entry["label"])}</time>'
+            f'<strong>{escape(entry["title"])}</strong></div>'
+            f'<ul class="site-changelog-points">{points}</ul></li>'
+        )
+    return "\n".join(items)
+
+
 def main() -> None:
     story = json.loads(STORY.read_text(encoding="utf-8"))
     site_log = json.loads(SITE_LOG.read_text(encoding="utf-8"))
@@ -203,7 +226,7 @@ def main() -> None:
     <ol class="opening-log-list">{site_log_html(site_log)}</ol>
     <details class="site-changelog" id="site-changelog">
       <summary><span class="site-changelog-summary"><span class="site-changelog-mark" aria-hidden="true">✦</span><strong>网站更新记录</strong><small>看看茶馆添了什么新东西</small></span><span class="site-changelog-arrow" aria-hidden="true">⌄</span></summary>
-      <div class="site-changelog-scroll" role="region" aria-label="网站历史更新记录，可滚动查看" tabindex="0"><ol class="site-changelog-list">{site_log_html(site_changelog)}</ol></div>
+      <div class="site-changelog-scroll" role="region" aria-label="网站历史更新记录，可滚动查看" tabindex="0"><ol class="site-changelog-list">{site_changelog_html(site_changelog)}</ol></div>
     </details>
   </section>
   <section class="author-login" id="author-login" aria-labelledby="author-login-title" hidden>

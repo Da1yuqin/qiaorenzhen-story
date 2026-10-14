@@ -77,13 +77,16 @@ a { color: inherit; }
 .site-changelog-summary small { color: var(--ink-faint); font: 11px/1.5 var(--font-ui); letter-spacing: .05em; }
 .site-changelog-arrow { flex: none; font: 25px/1 var(--font-reading); transition: transform .2s ease; }
 .site-changelog[open] .site-changelog-arrow { transform: rotate(180deg); }
-.site-changelog-scroll { max-height: 340px; overflow-y: auto; margin: 0 20px 16px; border-top: 1px solid var(--line); scrollbar-color: #b7c7b5 transparent; }
+.site-changelog-scroll { max-height: 430px; overflow-y: auto; margin: 0 20px 16px; border-top: 1px solid var(--line); scrollbar-color: #b7c7b5 transparent; }
 .site-changelog-list { margin: 0; padding: 5px 0 0; list-style: none; }
-.site-changelog-list li { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 20px; padding: 16px 3px; border-bottom: 1px solid #e9e3d6; }
-.site-changelog-list li:last-child { border-bottom: 0; }
-.site-changelog-list time { color: var(--seal); font: 11px/1.7 var(--font-ui); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
-.site-changelog-list strong { color: var(--ink); font: 500 14px/1.5 var(--font-reading); letter-spacing: .04em; }
-.site-changelog-list p { margin: 3px 0 0; color: var(--ink-soft); font: 12px/1.7 var(--font-reading); }
+.site-changelog-entry { padding: 17px 4px 18px; border-bottom: 1px solid #e9e3d6; }
+.site-changelog-entry:last-child { border-bottom: 0; }
+.site-changelog-entry-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 10px; }
+.site-changelog-entry time { color: var(--seal); font: 11px/1.7 var(--font-ui); font-variant-numeric: tabular-nums; letter-spacing: .05em; }
+.site-changelog-entry-head strong { color: var(--ink); font: 500 14px/1.5 var(--font-reading); letter-spacing: .04em; }
+.site-changelog-points { display: grid; gap: 5px; margin: 8px 0 0; padding-left: 21px; color: var(--ink-soft); list-style: circle; }
+.site-changelog-points li { padding-left: 2px; font: 12px/1.75 var(--font-reading); }
+.site-changelog-points li::marker { color: var(--seal); }
 
 .intro-section { max-width: 1220px; margin: 0 auto; padding: 104px 35px 95px; }
 .intro-section .section-label, .reading-section .section-label { display: flex; align-items: center; gap: 15px; }
@@ -126,11 +129,12 @@ a { color: inherit; }
 .chapter:last-child { border-bottom: 0; margin-bottom: 0; }
 .chapter-kicker { margin: 0 0 13px; color: var(--seal); font: 11px/1.6 var(--font-ui); letter-spacing: .18em; }
 .chapter h3 { margin: 0 0 16px; font: 500 clamp(24px, 2.5vw, 32px)/1.45 var(--font-reading); letter-spacing: .07em; }
-.chapter-byline { display: flex; align-items: center; gap: 10px; margin: 0 0 28px; color: var(--ink-faint); font: 11px/1.55 var(--font-ui); }
+.chapter-byline { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 28px; color: var(--ink-faint); font: 11px/1.55 var(--font-ui); }
 .chapter-byline .author-avatar { margin-right: 2px; }
 .chapter-author-seal { display: inline-grid; place-items: center; flex: none; width: 25px; height: 25px; border: 1px solid var(--seal); color: var(--seal); box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px #b85e4a60; transform: rotate(-5deg); font: 600 15px/1 var(--font-reading); }
 .chapter-byline--unverified { color: var(--ink-faint); }
 .chapter-byline--unverified .chapter-author-seal { border-color: #a5aea4; color: #89978e; box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px #a5aea45c; }
+.chapter-author-hint { flex-basis: 100%; padding-left: 35px; color: var(--ink-faint); font: 11px/1.6 var(--font-ui); }
 .hide-chapter-authors .chapter-byline { display: none; }
 .chapter-interactions { margin-top: 38px; padding-top: 17px; border-top: 1px solid var(--line); }
 .chapter-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -239,7 +243,8 @@ label > input, label > textarea, label > select { display: block; width: 100%; m
   .site-changelog-summary { gap: 7px; }
   .site-changelog-summary small { width: 100%; padding-left: 36px; }
   .site-changelog-scroll { margin: 0 14px 12px; }
-  .site-changelog-list li { grid-template-columns: 1fr; gap: 3px; padding: 13px 2px; }
+  .site-changelog-entry { padding: 13px 2px 15px; }
+  .site-changelog-entry time { width: 100%; }
   .intro-section { padding: 74px 22px 72px; }
   .intro-heading { margin-bottom: 27px; }
   .intro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
