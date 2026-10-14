@@ -146,7 +146,7 @@ def main() -> None:
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="engagement.css">
   <link rel="stylesheet" href="author.css">
-  <script>window.QIAORENZHEN_STORY_API_BASE = "{escape(STORY_API_BASE)}"; window.QIAORENZHEN_AUTHOR_API_BASE = "";</script>
+  <script>window.QIAORENZHEN_STORY_API_BASE = "{escape(STORY_API_BASE)}"; window.QIAORENZHEN_AUTHOR_API_BASE = "{escape(STORY_API_BASE)}";</script>
   <script src="site.js" defer></script>
   <script src="engagement.js" defer></script>
   <script src="author.js" defer></script>
