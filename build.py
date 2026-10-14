@@ -6,6 +6,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from hashlib import sha256
 from pathlib import Path
 
 
@@ -22,6 +23,11 @@ STORY_API_BASE = "https://qiaorenzhen-story-api.pages.dev"
 
 def escape(value: object) -> str:
     return html.escape(str(value), quote=True)
+
+
+def asset_url(name: str) -> str:
+    digest = sha256((ROOT / name).read_bytes()).hexdigest()[:10]
+    return f"{name}?v={digest}"
 
 
 def image_path(source: str) -> str:
@@ -163,13 +169,13 @@ def main() -> None:
   <meta name="theme-color" content="#f7f2e8">
   <title>{escape(story["title"])} · 联文</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="engagement.css">
-  <link rel="stylesheet" href="author.css">
+  <link rel="stylesheet" href="{asset_url('style.css')}">
+  <link rel="stylesheet" href="{asset_url('engagement.css')}">
+  <link rel="stylesheet" href="{asset_url('author.css')}">
   <script>window.QIAORENZHEN_STORY_API_BASE = "{escape(STORY_API_BASE)}"; window.QIAORENZHEN_AUTHOR_API_BASE = "{escape(STORY_API_BASE)}";</script>
-  <script src="site.js" defer></script>
-  <script src="engagement.js" defer></script>
-  <script src="author.js" defer></script>
+  <script src="{asset_url('site.js')}" defer></script>
+  <script src="{asset_url('engagement.js')}" defer></script>
+  <script src="{asset_url('author.js')}" defer></script>
 </head>
 <body>
 <main class="site-shell" id="top">
