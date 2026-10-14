@@ -29,6 +29,7 @@
 .intro-card--flipped .intro-portrait { height: 170px; }
 .intro-card-copy--back { min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 15px; }
 .intro-card-copy--back h3 { margin: 13px 0 12px; }
+.intro-card-copy--back .intro-name-row { margin: 13px 0 12px; }
 .intro-card-copy--back .profile-paragraph { margin: 0 0 13px; font-size: 12px; line-height: 1.8; }
 .intro-card-copy--back .profile-paragraph strong { display: block; margin-bottom: 3px; color: var(--seal); font: 11px/1.5 var(--font-ui); }
 .profile-facts { margin: 16px 0 0; }

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent
 STORY = ROOT / "data" / "story.json"
 OUTPUT = ROOT / "index.html"
 AUTHOR_NAMES = {"huahua": "花花", "goudan": "狗蛋", "dahuang": "大黄"}
+CHARACTER_SEALS = {"zhou": "茶", "jinyun": "药", "sanmei": "灯", "wangcai": "书", "tong": "账"}
 STORY_API_BASE = "https://qiaorenzhen-story-api.pages.dev"
 
 
@@ -104,14 +105,18 @@ def chapter_html(chapter: dict, index: int, art: dict | None) -> str:
 
 
 def character_html(person: dict, index: int) -> str:
+    seal = CHARACTER_SEALS[person["id"]]
     return (
-        f'<article class="intro-card" data-character-id="{escape(person["id"])}" data-character-index="{index}">'
+        f'<article class="intro-card" data-character-id="{escape(person["id"])}" data-character-index="{index}" '
+        f'data-character-seal="{escape(seal)}">'
         f'<div class="intro-portrait" role="img" aria-label="{escape(person["name"])}的彩色正脸像" '
         f'style="background-position-x:{index * 25}%"></div>'
         '<div class="intro-card-copy">'
         f'<span class="intro-number">{index + 1:02d} · {escape(person["age"])}岁</span>'
         f'<small>{escape(person["role"])}</small>'
-        f'<h3>{escape(person["name"])}</h3><p>{escape(person["intro"])}</p>'
+        f'<div class="intro-name-row"><h3>{escape(person["name"])}</h3>'
+        f'<span class="intro-name-seal" aria-hidden="true">{escape(seal)}</span></div>'
+        f'<p>{escape(person["intro"])}</p>'
         '</div><button type="button" class="intro-card-flip" aria-pressed="false" hidden>'
         '翻看完整设定<span aria-hidden="true">↻</span></button></article>'
     )

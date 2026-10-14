@@ -177,7 +177,12 @@
     back.setAttribute("aria-label", `${fronts.get(id)?.querySelector("h3")?.textContent || id}的完整人物设定，可滚动阅读`);
     back.append(el("span", "intro-number", `${String(Number(card.dataset.characterIndex) + 1).padStart(2, "0")} · 作者手记`));
     back.append(el("small", "", profile?.identity || status?.currentName || "完整设定"));
-    back.append(el("h3", "", fronts.get(id)?.querySelector("h3")?.textContent || id));
+    const title = el("div", "intro-name-row");
+    title.append(el("h3", "", fronts.get(id)?.querySelector("h3")?.textContent || id));
+    const seal = el("span", "intro-name-seal", card.dataset.characterSeal || "");
+    seal.setAttribute("aria-hidden", "true");
+    title.append(seal);
+    back.append(title);
     if (profile?.background) back.append(el("p", "profile-paragraph", profile.background));
     if (profile?.innerConflict) {
       const paragraph = el("p", "profile-paragraph");

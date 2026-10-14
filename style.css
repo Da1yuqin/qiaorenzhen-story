@@ -69,6 +69,9 @@ a { color: inherit; }
 .intro-card-copy { flex: 1; padding: 22px 21px 26px; }
 .intro-number { display: block; margin-bottom: 14px; color: var(--seal); font: 12px/1 var(--font-reading); letter-spacing: .08em; }
 .intro-card h3 { margin: 22px 0 9px; font: 500 23px/1.3 var(--font-reading); letter-spacing: .09em; }
+.intro-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 22px 0 9px; }
+.intro-card .intro-name-row h3 { margin: 0; }
+.intro-name-seal { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border: 1px solid #bed0bd; border-radius: 50%; background: #f4f8f1; color: #92aa95; box-shadow: inset 0 0 0 2px #fffdf7, inset 0 0 0 3px #d2dfd0; transform: rotate(-10deg); font: 500 22px/1 var(--font-reading); }
 .intro-card p { margin: 0; color: var(--ink-soft); font: 13px/1.85 var(--font-reading); }
 
 .reading-section { max-width: 1220px; margin: auto; padding: 36px 35px 70px; }
@@ -188,6 +191,8 @@ label > input, label > textarea, label > select { display: block; width: 100%; m
   .intro-portrait { height: clamp(195px, 34vw, 260px); }
   .intro-card-copy { padding: 17px 16px 22px; }
   .intro-card h3 { margin-top: 16px; font-size: 21px; }
+  .intro-name-row { margin-top: 16px; }
+  .intro-name-seal { width: 34px; height: 34px; font-size: 19px; }
   .intro-card p { font-size: 12px; }
   .reading-section { padding: 28px 22px 60px; }
   .reading-head { padding-top: 40px; }
