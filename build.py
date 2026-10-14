@@ -12,8 +12,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 STORY = ROOT / "data" / "story.json"
 SITE_LOG = ROOT / "data" / "site-log.json"
+SITE_CHANGELOG = ROOT / "data" / "site-changelog.json"
 OUTPUT = ROOT / "index.html"
 AUTHOR_NAMES = {"huahua": "花花", "goudan": "狗蛋", "dahuang": "大黄"}
+AUTHOR_SEALS = {"huahua": "花", "goudan": "蛋", "dahuang": "黄"}
 CHARACTER_SEALS = {"zhou": "茶", "jinyun": "药", "sanmei": "灯", "wangcai": "书", "tong": "账"}
 STORY_API_BASE = "https://qiaorenzhen-story-api.pages.dev"
 
@@ -71,15 +73,16 @@ def chapter_html(chapter: dict, index: int, art: dict | None) -> str:
     if not re.fullmatch(r"[a-z0-9-]+", chapter_id):
         raise ValueError(f"Invalid chapter id: {chapter_id}")
     author = chapter.get("author")
-    byline = ""
+    byline = '<div class="chapter-byline chapter-byline--unverified"><span class="chapter-author-seal" aria-hidden="true">考</span><strong>执笔待考</strong></div>'
     if author in AUTHOR_NAMES:
         published = chapter.get("publishedAt") or ""
         date = published[:10]
         byline = (
             '<div class="chapter-byline">'
+            f'<span class="chapter-author-seal" aria-hidden="true">{escape(AUTHOR_SEALS[author])}</span>'
             f'<span class="author-avatar tiny author-avatar--{author}" role="img" '
             f'aria-label="{escape(AUTHOR_NAMES[author])}的头像"></span>'
-            f'<strong>{escape(AUTHOR_NAMES[author])}</strong>'
+            f'<strong>执笔 · {escape(AUTHOR_NAMES[author])}</strong>'
             + (f'<time datetime="{escape(date)}">{escape(date)} 更新</time>' if date else "")
             + "</div>"
         )
@@ -140,6 +143,7 @@ def site_log_html(entries: list[dict]) -> str:
 def main() -> None:
     story = json.loads(STORY.read_text(encoding="utf-8"))
     site_log = json.loads(SITE_LOG.read_text(encoding="utf-8"))
+    site_changelog = json.loads(SITE_CHANGELOG.read_text(encoding="utf-8"))
     chapters = story["chapters"]
     if len(chapters) < 17 or len({chapter["id"] for chapter in chapters}) != len(chapters):
         raise ValueError("Expected at least the 17 distinct public chapters in this edition")
@@ -173,7 +177,7 @@ def main() -> None:
   <header class="site-header">
     <a class="brand" href="#top"><span class="brand-seal">半</span><span class="brand-text"><strong>{escape(story["title"])}</strong><small>三个人，一本慢慢写的故事</small></span></a>
     <nav class="reader-nav" aria-label="页面导航"><a href="#characters">人物初见</a><a href="#story-start">开始阅读</a>
-      <span class="mode-nav" role="group" aria-label="阅读模式"><button type="button" class="active" data-story-mode="reader" aria-pressed="true">读者模式</button><button type="button" data-story-mode="author" aria-pressed="false">作者模式</button></span>
+      <span class="mode-nav" role="group" aria-label="阅读模式"><button type="button" class="active" data-story-mode="reader" aria-pressed="true">读者模式</button><button type="button" data-story-mode="author" aria-pressed="false">作者模式</button></span><button type="button" class="author-exit" id="author-exit" hidden>退出作者模式</button>
     </nav>
   </header>
   <section class="hero" aria-labelledby="hero-title">
@@ -191,6 +195,10 @@ def main() -> None:
       <h2 id="site-log-title">从旧稿，到现在。</h2></div>
       <a href="https://da1yuqin.github.io/blog/serial-fiction-making/">读制作手记 <span aria-hidden="true">↗</span></a></div>
     <ol class="opening-log-list">{site_log_html(site_log)}</ol>
+    <details class="site-changelog" id="site-changelog">
+      <summary><span class="site-changelog-summary"><span class="site-changelog-mark" aria-hidden="true">✦</span><strong>网站更新记录</strong><small>看看茶馆添了什么新东西</small></span><span class="site-changelog-arrow" aria-hidden="true">⌄</span></summary>
+      <div class="site-changelog-scroll" role="region" aria-label="网站历史更新记录，可滚动查看" tabindex="0"><ol class="site-changelog-list">{site_log_html(site_changelog)}</ol></div>
+    </details>
   </section>
   <section class="author-login" id="author-login" aria-labelledby="author-login-title" hidden>
     <div class="login-wrap"><div class="login-art" aria-hidden="true"><span>✧</span><span>卷</span><span>✧</span></div>
@@ -210,7 +218,7 @@ def main() -> None:
   <div id="author-before-story" hidden></div>
   <div id="author-workshop" hidden></div>
   <section class="reading-section" id="story-start" aria-labelledby="story-title">
-    <div class="reading-head"><div><div class="section-label"><span>正文</span><i></i></div><h2 id="story-title">故事，从这里开始。</h2></div><span class="chapter-count">共 {len(chapters)} 段 · 持续连载</span></div>
+    <div class="reading-head"><div><div class="section-label"><span>正文</span><i></i></div><h2 id="story-title">故事，从这里开始。</h2></div><div class="reading-options"><span class="chapter-count">共 {len(chapters)} 段 · 持续连载</span><label class="chapter-author-option"><input type="checkbox" id="chapter-author-toggle" checked><span class="chapter-author-switch" aria-hidden="true"></span><span>显示作者</span></label></div></div>
     <div class="reading-layout"><aside class="chapter-rail"><span>卷页目录</span><div>{rail}</div></aside><div class="chapters">{content}</div></div>
   </section>
   <section class="reader-end"><div class="end-ornament">✦</div><p>后来的事，还要等下一位执笔的人。</p><button type="button" class="story-like" aria-pressed="false"><span class="heart-mark" aria-hidden="true">♡</span> 喜欢这个故事</button><span class="like-save-note">喜欢会先记在当前浏览器。</span></section>

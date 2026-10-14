@@ -1,5 +1,18 @@
 (() => {
   const authors = { huahua: "花花", goudan: "狗蛋", dahuang: "大黄" };
+  const authorToggle = document.querySelector("#chapter-author-toggle");
+  const authorDisplayKey = "qiaorenzhen-show-chapter-authors";
+  let showChapterAuthors = true;
+  try { showChapterAuthors = localStorage.getItem(authorDisplayKey) !== "false"; } catch { /* Use the visible default. */ }
+  function setAuthorDisplay(visible) {
+    document.documentElement.classList.toggle("hide-chapter-authors", !visible);
+    if (authorToggle) authorToggle.checked = visible;
+  }
+  setAuthorDisplay(showChapterAuthors);
+  authorToggle?.addEventListener("change", () => {
+    setAuthorDisplay(authorToggle.checked);
+    try { localStorage.setItem(authorDisplayKey, String(authorToggle.checked)); } catch { /* The toggle still works for this visit. */ }
+  });
   const popup = document.querySelector("#like-popup");
   const portrait = popup.querySelector(".like-popup > .author-avatar");
   const title = popup.querySelector("#popup-title");

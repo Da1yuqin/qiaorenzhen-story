@@ -13,6 +13,7 @@
   const apiBase = validApiBase(apiSetting);
   const publicApiBase = validApiBase(window.QIAORENZHEN_STORY_API_BASE || window.QIAORENZHEN_API_BASE || "");
   const modeButtons = [...document.querySelectorAll("[data-story-mode]")];
+  const authorExit = document.querySelector("#author-exit");
   const loginPanel = document.querySelector("#author-login");
   const loginForm = document.querySelector("#author-login-form");
   const loginNote = document.querySelector("#author-login-note");
@@ -117,6 +118,7 @@
 
   function setMode(next) {
     mode = next;
+    if (authorExit) authorExit.hidden = next !== "author" || !session;
     for (const button of modeButtons) {
       const active = button.dataset.storyMode === next;
       button.classList.toggle("active", active);
@@ -319,7 +321,7 @@
 
   function renderWorkshop() {
     const wrapper = el("section", "author-section");
-    wrapper.innerHTML = `<div class="workshop-shell"><div class="workshop-top"><div><div class="section-label"><span>作者模式</span><i></i></div><h2>故事写到这里。</h2><p>选好视角与故事时间，续写的正文就会接在文末。</p></div><div class="signed-in"><span class="author-avatar"></span><div><strong></strong><small>正在执笔</small></div><button type="button" id="author-logout">退出</button></div></div><section class="workshop-card writing-card"><div class="card-eyebrow">✎ 续写正文</div><div class="writing-overview"><div class="writing-progress"><div class="progress-main"><strong id="current-story-time"></strong><span id="selected-story-time"></span></div><p id="story-summary"></p><div class="timeline-slider"><div class="slider-row"><span id="slider-min"></span><strong id="slider-now"></strong><span id="slider-max"></span></div><div class="range-wrap"><input id="writing-slider" type="range" aria-label="故事日期滑动条"><div class="range-marks" aria-hidden="true"></div></div><div class="slider-events" aria-label="故事事件路标"></div></div><div class="countdown" id="next-event-countdown"></div></div><aside class="selected-state" aria-label="当前人物状态"><label class="character-picker">这一段由谁讲述<select id="writing-character"></select></label><div class="card-eyebrow">这一视角中的人物</div><h3 id="selected-character-name"></h3><dl class="character-facts" id="selected-character-facts"></dl></aside></div><form id="chapter-publish-form"><div class="writing-fields"><label>正文标题中的名字<input id="writing-heading" maxlength="40" required></label><label>故事发生日期<input id="writing-date" type="date" required></label></div><div class="heading-preview">生成标题 <strong id="heading-preview"></strong></div><textarea class="chapter-editor" id="writing-body" aria-label="续写正文" placeholder="这天的故事，从这里往下写……" maxlength="100000" required></textarea><div class="editor-footer"><span id="writing-count">0 字 · 发布后接到文末，显示你的头像与更新日期</span><button type="submit" class="main-button">发布到文末 →</button></div><p class="author-publish-note" id="author-publish-note" role="status"></p></form></section></div>`;
+    wrapper.innerHTML = `<div class="workshop-shell"><div class="workshop-top"><div><div class="section-label"><span>作者模式</span><i></i></div><h2>故事写到这里。</h2><p>选好视角与故事时间，续写的正文就会接在文末。</p></div><div class="signed-in"><span class="author-avatar"></span><div><strong></strong><small>正在执笔</small></div><button type="button" id="author-logout">退出作者模式</button></div></div><section class="workshop-card writing-card"><div class="card-eyebrow">✎ 续写正文</div><div class="writing-overview"><div class="writing-progress"><div class="progress-main"><strong id="current-story-time"></strong><span id="selected-story-time"></span></div><p id="story-summary"></p><div class="timeline-slider"><div class="slider-row"><span id="slider-min"></span><strong id="slider-now"></strong><span id="slider-max"></span></div><div class="range-wrap"><input id="writing-slider" type="range" aria-label="故事日期滑动条"><div class="range-marks" aria-hidden="true"></div></div><div class="slider-events" aria-label="故事事件路标"></div></div><div class="countdown" id="next-event-countdown"></div></div><aside class="selected-state" aria-label="当前人物状态"><label class="character-picker">这一段由谁讲述<select id="writing-character"></select></label><div class="card-eyebrow">这一视角中的人物</div><h3 id="selected-character-name"></h3><dl class="character-facts" id="selected-character-facts"></dl></aside></div><form id="chapter-publish-form"><div class="writing-fields"><label>正文标题中的名字<input id="writing-heading" maxlength="40" required></label><label>故事发生日期<input id="writing-date" type="date" required></label></div><div class="heading-preview">生成标题 <strong id="heading-preview"></strong></div><textarea class="chapter-editor" id="writing-body" aria-label="续写正文" placeholder="这天的故事，从这里往下写……" maxlength="100000" required></textarea><div class="editor-footer"><span id="writing-count">0 字 · 发布后接到文末，显示你的头像与更新日期</span><button type="submit" class="main-button">发布到文末 →</button></div><p class="author-publish-note" id="author-publish-note" role="status"></p></form></section></div>`;
     wrapper.querySelector(".signed-in .author-avatar").classList.add(`author-avatar--${session.author}`);
     wrapper.querySelector(".signed-in strong").textContent = session.name;
     wrapper.querySelector("#author-logout").addEventListener("click", logout);
@@ -422,6 +424,7 @@
   function revealAuthor() {
     if (mode !== "author" || !session || !workshop || !lore) return;
     loginPanel.hidden = true;
+    if (authorExit) authorExit.hidden = false;
     for (const card of cards) {
       card.classList.add("intro-card--author");
       card.querySelector(".intro-card-flip").hidden = false;
@@ -480,7 +483,7 @@
   }
 
   async function logout() {
-    try { await api("/api/logout", "POST", {}); } catch { /* Clearing the local session is sufficient. */ }
+    const revoke = token ? api("/api/logout", "POST", {}).catch(() => {}) : Promise.resolve();
     saveToken("");
     session = null; workshop = null; lore = null;
     lorePanel.replaceChildren();
@@ -488,6 +491,7 @@
     if (portraitUrl) URL.revokeObjectURL(portraitUrl);
     portraitUrl = null;
     setMode("reader");
+    void revoke;
   }
 
   function appendChapter(chapter) {
@@ -497,17 +501,25 @@
     const article = el("article", "chapter");
     article.id = chapter.id;
     article.append(el("div", "chapter-kicker", `第 ${String(index).padStart(2, "0")} 段 · 半日闲记事`), el("h3", "", chapter.heading));
-    if (names[chapter.author]) {
-      const byline = el("div", "chapter-byline");
+    const verified = Boolean(names[chapter.author]);
+    const byline = el("div", verified ? "chapter-byline" : "chapter-byline chapter-byline--unverified");
+    const seal = el("span", "chapter-author-seal", verified ? { huahua: "花", goudan: "蛋", dahuang: "黄" }[chapter.author] : "考");
+    seal.setAttribute("aria-hidden", "true");
+    byline.append(seal);
+    if (verified) {
       const avatar = el("span", `author-avatar tiny author-avatar--${chapter.author}`);
       avatar.setAttribute("role", "img");
       avatar.setAttribute("aria-label", `${names[chapter.author]}的头像`);
-      byline.append(avatar, el("strong", "", names[chapter.author]));
-      const time = el("time", "", `${realDate(chapter.publishedAt)} 更新`);
-      if (chapter.publishedAt) time.dateTime = chapter.publishedAt;
-      byline.append(time);
-      article.append(byline);
+      byline.append(avatar, el("strong", "", `执笔 · ${names[chapter.author]}`));
+      if (chapter.publishedAt) {
+        const time = el("time", "", `${realDate(chapter.publishedAt)} 更新`);
+        time.dateTime = chapter.publishedAt;
+        byline.append(time);
+      }
+    } else {
+      byline.append(el("strong", "", "执笔待考"));
     }
+    article.append(byline);
     const prose = el("div", "prose");
     for (const text of (chapter.body || "").split(/\n+/).map((piece) => piece.trim()).filter(Boolean)) prose.append(el("p", "", text));
     article.append(prose);
@@ -580,6 +592,7 @@
   }
 
   for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.storyMode));
+  authorExit?.addEventListener("click", logout);
   for (const button of document.querySelectorAll(".author-choices [data-author]")) {
     button.addEventListener("click", () => {
       selectedAuthor = button.dataset.author;
