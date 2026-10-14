@@ -99,6 +99,7 @@
     const date = new Date(value);
     return Number.isNaN(date.valueOf()) ? "" : new Intl.DateTimeFormat("zh-CN", {
       timeZone: "Asia/Shanghai", year: "numeric", month: "long", day: "numeric",
+      hour: "2-digit", minute: "2-digit", hourCycle: "h23",
     }).format(date);
   }
 

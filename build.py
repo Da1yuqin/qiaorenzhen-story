@@ -88,15 +88,15 @@ def chapter_html(chapter: dict, index: int, art: dict | None) -> str:
         + '</div>'
     )
     if author in AUTHOR_NAMES:
-        published = chapter.get("publishedAt") or ""
-        date = published[:10]
+        updated = chapter.get("updatedAt") or chapter.get("publishedAt") or ""
+        date = updated[:16].replace("T", " ")
         byline = (
             '<div class="chapter-byline">'
             f'<span class="chapter-author-seal" aria-hidden="true">{escape(AUTHOR_SEALS[author])}</span>'
             f'<span class="author-avatar tiny author-avatar--{author}" role="img" '
             f'aria-label="{escape(AUTHOR_NAMES[author])}的头像"></span>'
             f'<strong>执笔 · {escape(AUTHOR_NAMES[author])}</strong>'
-            + (f'<time datetime="{escape(date)}">{escape(date)} 更新</time>' if date else "")
+            + (f'<time datetime="{escape(updated)}">{escape(date)} 更新</time>' if date else "")
             + "</div>"
         )
     divider = (

@@ -134,7 +134,7 @@ a { color: inherit; }
 .chapter-author-seal { display: inline-grid; place-items: center; flex: none; width: 25px; height: 25px; border: 1px solid var(--seal); color: var(--seal); box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px #b85e4a60; transform: rotate(-5deg); font: 600 15px/1 var(--font-reading); }
 .chapter-byline--unverified { color: var(--ink-faint); }
 .chapter-byline--unverified .chapter-author-seal { border-color: #a5aea4; color: #89978e; box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px #a5aea45c; }
-.chapter-author-hint { flex-basis: 100%; padding-left: 35px; color: var(--ink-faint); font: 11px/1.6 var(--font-ui); }
+.chapter-author-hint { color: var(--ink-faint); font: 11px/1.6 var(--font-ui); }
 .hide-chapter-authors .chapter-byline { display: none; }
 .chapter-interactions { margin-top: 38px; padding-top: 17px; border-top: 1px solid var(--line); }
 .chapter-actions { display: flex; flex-wrap: wrap; gap: 10px; }
