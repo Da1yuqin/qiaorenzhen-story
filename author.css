@@ -125,6 +125,30 @@
 .editor-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 17px; color: var(--ink-faint); font-size: 11px; }
 .author-publish-note { min-height: 1.7em; margin: 12px 0 0; color: var(--seal); font: 12px/1.7 var(--font-ui); }
 
+.chapter-edit-button { border-color: #d6bea9; background: #fff8ed; color: var(--seal); }
+.chapter-edit-button:hover { border-color: #bf947e; background: #f9eadb; }
+.chapter-edit-button:disabled { opacity: .6; cursor: wait; }
+.chapter-edit-panel { margin: 36px 0 22px; padding: clamp(20px, 3vw, 32px); border: 1px solid #d5c5ad; background: #fffdf6; box-shadow: 0 12px 30px #493a2914; }
+.chapter-edit-heading-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.chapter-edit-heading-row h4 { margin: 8px 0 0; color: var(--ink); font: 500 22px/1.5 var(--font-reading); }
+.chapter-edit-cancel { flex: none; border: 1px solid var(--line); padding: 7px 12px; background: transparent; color: var(--ink-soft); font: 12px/1.5 var(--font-ui); cursor: pointer; }
+.chapter-edit-cancel:hover { background: #f5eee4; }
+.chapter-edit-form { display: grid; gap: 18px; }
+.chapter-edit-form label { display: grid; gap: 8px; color: var(--ink-soft); font: 12px/1.6 var(--font-ui); }
+.chapter-edit-form .chapter-editor { min-height: 380px; resize: vertical; }
+.chapter-edit-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; color: var(--ink-faint); font: 11px/1.6 var(--font-ui); }
+.chapter-edit-footer .main-button { min-width: 132px; }
+.chapter-edit-note { margin: -8px 0 0; }
+.chapter-last-edited { margin: -12px 0 25px; color: var(--ink-faint); font: 11px/1.5 var(--font-ui); }
+.chapter-last-edited time { color: var(--seal); }
+.chapter-edit-history { margin: 30px 0 0; border-top: 1px solid var(--line); color: var(--ink-soft); font: 11px/1.6 var(--font-ui); }
+.chapter-edit-history summary { width: fit-content; padding: 13px 0 5px; color: var(--jade-deep); cursor: pointer; }
+.chapter-edit-history ol { display: grid; gap: 4px; margin: 6px 0 14px; padding: 0; list-style: none; }
+.chapter-edit-history li { display: flex; flex-wrap: wrap; gap: 6px 15px; padding: 7px 0; border-bottom: 1px solid #e9e2d5; }
+.chapter-edit-revision { color: var(--seal); }
+.hide-chapter-authors .chapter-edit-history-author { display: none; }
+.chapter-edit-error, .chapter-edit-saved { margin: 7px 0 0; color: var(--seal); font: 11px/1.6 var(--font-ui); }
+
 @media (max-width: 950px) {
   .supporting-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .writing-overview { grid-template-columns: 1fr; }

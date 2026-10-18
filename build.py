@@ -49,6 +49,28 @@ def illustration_html(art: dict) -> str:
     )
 
 
+def illustration_manifest_html(entries: list[dict]) -> str:
+    """Give later API chapters their local artwork without injecting executable text."""
+    records = []
+    seen = set()
+    for art in entries:
+        chapter_id = art["chapterId"]
+        if not re.fullmatch(r"[a-z0-9-]+", chapter_id) or chapter_id in seen:
+            raise ValueError(f"Invalid or duplicate illustration chapter id: {chapter_id}")
+        seen.add(chapter_id)
+        records.append({
+            "chapterId": chapter_id,
+            "after": art["after"],
+            "src": asset_url(image_path(art["src"])),
+            "alt": art["alt"],
+            "caption": art["caption"],
+        })
+    payload = json.dumps(records, ensure_ascii=False, separators=(",", ":"))
+    for character, replacement in (("<", "\\u003c"), (">", "\\u003e"), ("&", "\\u0026"), ("\u2028", "\\u2028"), ("\u2029", "\\u2029")):
+        payload = payload.replace(character, replacement)
+    return f'<script type="application/json" id="chapter-illustrations">{payload}</script>'
+
+
 def prose_html(chapter: dict, art: dict | None) -> str:
     paragraphs = [piece.strip() for piece in re.split(r"\n+", chapter["body"]) if piece.strip()]
     if not paragraphs:
@@ -176,6 +198,7 @@ def main() -> None:
     chapters = story["chapters"]
     if len(chapters) < 17 or len({chapter["id"] for chapter in chapters}) != len(chapters):
         raise ValueError("Expected at least the 17 distinct public chapters in this edition")
+    illustration_manifest = illustration_manifest_html(story["illustrations"])
     artwork = {art["chapterId"]: art for art in story["illustrations"]}
     characters = "\n".join(character_html(person, i) for i, person in enumerate(story["readerCharacters"]))
     rail = "\n".join(
@@ -196,6 +219,7 @@ def main() -> None:
   <link rel="stylesheet" href="{asset_url('engagement.css')}">
   <link rel="stylesheet" href="{asset_url('author.css')}">
   <script>window.QIAORENZHEN_STORY_API_BASE = "{escape(STORY_API_BASE)}"; window.QIAORENZHEN_AUTHOR_API_BASE = "{escape(STORY_API_BASE)}";</script>
+  {illustration_manifest}
   <script src="{asset_url('site.js')}" defer></script>
   <script src="{asset_url('engagement.js')}" defer></script>
   <script src="{asset_url('author.js')}" defer></script>

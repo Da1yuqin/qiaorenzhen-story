@@ -31,6 +31,19 @@
   let portraitUrl = null;
   let requestSignature = null;
   let publicationId = null;
+  const chapterCache = new Map();
+  let activeChapterEditor = null;
+  let pendingEditorOpen = false;
+  const illustrations = (() => {
+    try {
+      const entries = JSON.parse(document.querySelector("#chapter-illustrations")?.textContent || "[]");
+      if (!Array.isArray(entries)) return new Map();
+      return new Map(entries.filter((item) => item && /^[a-z0-9-]+$/.test(item.chapterId)
+        && /^assets\/[a-z0-9-]+\.(?:png|jpg|webp)\?v=[0-9a-f]{10}$/.test(item.src)
+        && typeof item.after === "string" && typeof item.alt === "string" && typeof item.caption === "string")
+        .map((item) => [item.chapterId, item]));
+    } catch { return new Map(); }
+  })();
 
   function validApiBase(value) {
     if (typeof value !== "string" || !value.trim()) return "";
@@ -129,6 +142,8 @@
       loginPanel.hidden = true;
       lorePanel.hidden = true;
       workshopPanel.hidden = true;
+      closeChapterEditor();
+      document.querySelectorAll(".chapter-edit-button").forEach((button) => button.remove());
       for (const card of cards) {
         showFront(card);
         card.classList.remove("intro-card--author");
@@ -322,7 +337,7 @@
 
   function renderWorkshop() {
     const wrapper = el("section", "author-section");
-    wrapper.innerHTML = `<div class="workshop-shell"><div class="workshop-top"><div><div class="section-label"><span>作者模式</span><i></i></div><h2>故事写到这里。</h2><p>选好视角与故事时间，续写的正文就会接在文末。</p></div><div class="signed-in"><span class="author-avatar"></span><div><strong></strong><small>正在执笔</small></div><button type="button" id="author-logout">退出作者模式</button></div></div><section class="workshop-card writing-card"><div class="card-eyebrow">✎ 续写正文</div><div class="writing-overview"><div class="writing-progress"><div class="progress-main"><strong id="current-story-time"></strong><span id="selected-story-time"></span></div><p id="story-summary"></p><div class="timeline-slider"><div class="slider-row"><span id="slider-min"></span><strong id="slider-now"></strong><span id="slider-max"></span></div><div class="range-wrap"><input id="writing-slider" type="range" aria-label="故事日期滑动条"><div class="range-marks" aria-hidden="true"></div></div><div class="slider-events" aria-label="故事事件路标"></div></div><div class="countdown" id="next-event-countdown"></div></div><aside class="selected-state" aria-label="当前人物状态"><label class="character-picker">这一段由谁讲述<select id="writing-character"></select></label><div class="card-eyebrow">这一视角中的人物</div><h3 id="selected-character-name"></h3><dl class="character-facts" id="selected-character-facts"></dl></aside></div><form id="chapter-publish-form"><div class="writing-fields"><label>正文标题中的名字<input id="writing-heading" maxlength="40" required></label><label>故事发生日期<input id="writing-date" type="date" required></label></div><div class="heading-preview">生成标题 <strong id="heading-preview"></strong></div><textarea class="chapter-editor" id="writing-body" aria-label="续写正文" placeholder="这天的故事，从这里往下写……" maxlength="100000" required></textarea><div class="editor-footer"><span id="writing-count">0 字 · 发布后接到文末，显示你的头像与更新日期</span><button type="submit" class="main-button">发布到文末 →</button></div><p class="author-publish-note" id="author-publish-note" role="status"></p></form></section></div>`;
+    wrapper.innerHTML = `<div class="workshop-shell"><div class="workshop-top"><div><div class="section-label"><span>作者模式</span><i></i></div><h2>故事写到这里。</h2><p>选好视角与故事时间，续写的正文就会接在文末。修改已发布内容，可在正文对应章节点击「修改本章」。</p></div><div class="signed-in"><span class="author-avatar"></span><div><strong></strong><small>正在执笔</small></div><button type="button" id="author-logout">退出作者模式</button></div></div><section class="workshop-card writing-card"><div class="card-eyebrow">✎ 续写正文</div><div class="writing-overview"><div class="writing-progress"><div class="progress-main"><strong id="current-story-time"></strong><span id="selected-story-time"></span></div><p id="story-summary"></p><div class="timeline-slider"><div class="slider-row"><span id="slider-min"></span><strong id="slider-now"></strong><span id="slider-max"></span></div><div class="range-wrap"><input id="writing-slider" type="range" aria-label="故事日期滑动条"><div class="range-marks" aria-hidden="true"></div></div><div class="slider-events" aria-label="故事事件路标"></div></div><div class="countdown" id="next-event-countdown"></div></div><aside class="selected-state" aria-label="当前人物状态"><label class="character-picker">这一段由谁讲述<select id="writing-character"></select></label><div class="card-eyebrow">这一视角中的人物</div><h3 id="selected-character-name"></h3><dl class="character-facts" id="selected-character-facts"></dl></aside></div><form id="chapter-publish-form"><div class="writing-fields"><label>正文标题中的名字<input id="writing-heading" maxlength="40" required></label><label>故事发生日期<input id="writing-date" type="date" required></label></div><div class="heading-preview">生成标题 <strong id="heading-preview"></strong></div><textarea class="chapter-editor" id="writing-body" aria-label="续写正文" placeholder="这天的故事，从这里往下写……" maxlength="100000" required></textarea><div class="editor-footer"><span id="writing-count">0 字 · 发布后接到文末，显示你的头像与更新日期</span><button type="submit" class="main-button">发布到文末 →</button></div><p class="author-publish-note" id="author-publish-note" role="status"></p></form></section></div>`;
     wrapper.querySelector(".signed-in .author-avatar").classList.add(`author-avatar--${session.author}`);
     wrapper.querySelector(".signed-in strong").textContent = session.name;
     wrapper.querySelector("#author-logout").addEventListener("click", logout);
@@ -437,12 +452,14 @@
     lorePanel.hidden = false;
     if (!workshopPanel.firstElementChild) workshopPanel.replaceChildren(renderWorkshop());
     workshopPanel.hidden = false;
+    showChapterEditButtons();
   }
 
   async function restoreSession() {
     try {
       const [story, data] = await Promise.all([api("/api/story"), api("/api/workshop")]);
       if (!story.session || !data.state || !data.lore) throw new Error("作者会话已过期，请重新登录。");
+      if (Array.isArray(story.chapters)) for (const chapter of story.chapters) applyChapter(chapter);
       session = story.session;
       workshop = data.state;
       lore = data.lore;
@@ -495,6 +512,237 @@
     void revoke;
   }
 
+  function showChapterEditButtons() {
+    if (mode !== "author" || !session) return;
+    document.querySelectorAll("article.chapter").forEach((article) => {
+      const actions = article.querySelector(".chapter-actions");
+      if (!actions || actions.querySelector(".chapter-edit-button")) return;
+      const button = el("button", "chapter-action chapter-edit-button", "修改本章");
+      button.type = "button";
+      button.setAttribute("aria-label", `修改${article.querySelector(".chapter-kicker")?.textContent?.split("·")[0].trim() || "本章"}`);
+      button.setAttribute("aria-expanded", "false");
+      button.addEventListener("click", () => void openChapterEditor(article, button));
+      actions.append(button);
+    });
+  }
+
+  function closeChapterEditor() {
+    if (!activeChapterEditor) return;
+    activeChapterEditor.button.setAttribute("aria-expanded", "false");
+    activeChapterEditor.button.removeAttribute("aria-controls");
+    activeChapterEditor.panel.remove();
+    activeChapterEditor = null;
+  }
+
+  function renderChapterBody(article, body) {
+    const prose = article.querySelector(".prose");
+    if (!prose) return;
+    const oldParagraphs = [...prose.children].filter((node) => node.tagName === "P");
+    const art = [...prose.children].filter((node) => node.matches("figure.chapter-illustration")).map((figure) => {
+      const before = figure.previousElementSibling;
+      return { figure, afterText: before?.tagName === "P" ? before.textContent : "", index: oldParagraphs.indexOf(before) };
+    });
+    const paragraphs = body.split(/\n+/).map((piece) => piece.trim()).filter(Boolean);
+    const figuresAfter = new Map();
+    for (const item of art) {
+      let index = paragraphs.findIndex((text) => text === item.afterText);
+      if (index < 0) index = Math.max(0, Math.min(paragraphs.length - 1, item.index));
+      if (!figuresAfter.has(index)) figuresAfter.set(index, []);
+      figuresAfter.get(index).push(item.figure);
+    }
+    const nodes = [];
+    paragraphs.forEach((paragraph, index) => {
+      nodes.push(el("p", "", paragraph), ...(figuresAfter.get(index) || []));
+    });
+    prose.replaceChildren(...nodes);
+  }
+
+  function renderChapterIllustration(prose, chapterId) {
+    const art = illustrations.get(chapterId);
+    if (!art || prose.querySelector("figure.chapter-illustration")) return;
+    const figure = el("figure", "chapter-illustration");
+    const picture = el("img");
+    picture.src = art.src;
+    picture.alt = art.alt;
+    picture.loading = "lazy";
+    picture.decoding = "async";
+    picture.width = 1536;
+    picture.height = 1024;
+    const caption = el("figcaption");
+    const line = el("i");
+    line.setAttribute("aria-hidden", "true");
+    caption.append(el("span", "", "卷中一景"), line, document.createTextNode(art.caption));
+    figure.append(picture, caption);
+    const anchor = [...prose.children].find((node) => node.tagName === "P" && node.textContent.includes(art.after));
+    if (anchor) anchor.after(figure);
+    else prose.append(figure);
+  }
+
+  function renderEditHistory(article, chapter) {
+    const previous = article.querySelector(".chapter-last-edited");
+    const oldDetails = article.querySelector(".chapter-edit-history");
+    previous?.remove();
+    oldDetails?.remove();
+    const history = Array.isArray(chapter.editHistory) ? chapter.editHistory : [];
+    if (!chapter.updatedAt && !history.length) return;
+    const editedAt = chapter.updatedAt || history.at(-1)?.editedAt;
+    if (editedAt) {
+      const lastEdited = el("p", "chapter-last-edited");
+      lastEdited.append(document.createTextNode("最近修改 · "));
+      const time = el("time", "", realDate(editedAt));
+      time.dateTime = editedAt;
+      lastEdited.append(time);
+      article.querySelector(".prose")?.before(lastEdited);
+    }
+    if (!history.length) return;
+    const details = el("details", "chapter-edit-history");
+    details.append(el("summary", "", `修改记录 · ${history.length} 次`));
+    const list = el("ol");
+    for (const item of [...history].reverse()) {
+      const row = el("li");
+      row.append(el("span", "chapter-edit-revision", `第 ${item.revision} 次修改`));
+      const time = el("time", "", realDate(item.editedAt));
+      time.dateTime = item.editedAt;
+      row.append(time);
+      if (names[item.editor]) row.append(el("span", "chapter-edit-history-author", names[item.editor]));
+      list.append(row);
+    }
+    details.append(list);
+    article.querySelector(".chapter-interactions")?.before(details);
+  }
+
+  function applyChapter(chapter) {
+    if (!chapter || !/^[a-z0-9-]+$/.test(chapter.id) || typeof chapter.heading !== "string" || typeof chapter.body !== "string") return;
+    const previous = chapterCache.get(chapter.id);
+    const revision = Number.isInteger(chapter.revision) ? chapter.revision : 0;
+    if (previous && Number.isInteger(previous.revision) && previous.revision > revision) return;
+    chapterCache.set(chapter.id, chapter);
+    const article = document.getElementById(chapter.id);
+    if (!article) {
+      appendChapter(chapter);
+      return;
+    }
+    if (chapter.publishedAt) {
+      const byline = article.querySelector(".chapter-byline:not(.chapter-byline--unverified)");
+      if (byline) {
+        const published = byline.querySelector("time") || el("time");
+        published.dateTime = chapter.publishedAt;
+        published.textContent = `${realDate(chapter.publishedAt)} 发布`;
+        if (!published.isConnected) byline.append(published);
+      }
+    }
+    // The static chapter HTML is the offline fallback. Only replace its prose
+    // when the API has an actual edit; keep illustrations, likes, and comments.
+    if (revision > 0) {
+      const heading = article.querySelector(":scope > h3");
+      if (heading) heading.textContent = chapter.heading;
+      renderChapterBody(article, chapter.body);
+      const rail = [...document.querySelectorAll(".chapter-rail a")].find((link) => link.hash === `#${chapter.id}`);
+      if (rail) {
+        const number = rail.querySelector("span")?.cloneNode(true);
+        rail.replaceChildren(...(number ? [number] : []), document.createTextNode(chapter.heading));
+      }
+    }
+    renderEditHistory(article, chapter);
+  }
+
+  async function openChapterEditor(article, button) {
+    if (mode !== "author" || !session) return;
+    if (pendingEditorOpen) return;
+    if (activeChapterEditor?.article === article) {
+      activeChapterEditor.panel.querySelector("textarea")?.focus();
+      return;
+    }
+    if (activeChapterEditor) {
+      const current = activeChapterEditor;
+      const changed = current.panel.querySelector(".chapter-edit-heading").value !== current.base.heading
+        || current.panel.querySelector(".chapter-edit-body").value !== current.base.body;
+      if (changed && !window.confirm("当前章节的修改尚未保存，确定放弃并切换吗？")) return;
+      closeChapterEditor();
+    }
+    const originalLabel = button.textContent;
+    pendingEditorOpen = true;
+    button.disabled = true;
+    button.textContent = "读取本章……";
+    try {
+      const data = await api("/api/story");
+      if (mode !== "author" || !session || !button.isConnected) return;
+      const chapter = data.chapters?.find((item) => item.id === article.id);
+      if (!chapter) throw new Error("没有找到这一章，请刷新后重试。");
+      applyChapter(chapter);
+      const panel = el("section", "chapter-edit-panel");
+      panel.id = `chapter-edit-${article.id}`;
+      panel.setAttribute("aria-label", `修改${article.querySelector(".chapter-kicker")?.textContent?.split("·")[0].trim() || "本章"}`);
+      panel.innerHTML = '<div class="chapter-edit-heading-row"><div><span class="card-eyebrow">✎ 修改已发布章节</span><h4>修改这一段。</h4></div><button type="button" class="chapter-edit-cancel" aria-label="取消修改">取消</button></div><form class="chapter-edit-form"><label>章节标题<input class="chapter-edit-heading" maxlength="100" required></label><label>章节正文<textarea class="chapter-editor chapter-edit-body" maxlength="100000" required></textarea></label><div class="chapter-edit-footer"><span class="chapter-edit-count"></span><button type="submit" class="main-button">保存修改 →</button></div><p class="author-publish-note chapter-edit-note" role="status"></p></form>';
+      const heading = panel.querySelector(".chapter-edit-heading");
+      const body = panel.querySelector(".chapter-edit-body");
+      heading.value = chapter.heading;
+      body.value = chapter.body;
+      const count = panel.querySelector(".chapter-edit-count");
+      const updateCount = () => { count.textContent = `${body.value.replace(/\s/g, "").length} 字 · 原发布时间会保留`; };
+      body.addEventListener("input", updateCount);
+      updateCount();
+      panel.querySelector(".chapter-edit-cancel").addEventListener("click", () => {
+        closeChapterEditor();
+        button.focus();
+      });
+      const editor = { article, button, panel, base: chapter, requestSignature: "", requestId: "" };
+      panel.querySelector("form").addEventListener("submit", (event) => void saveChapterEdit(event, editor));
+      article.querySelector(".chapter-interactions")?.before(panel);
+      activeChapterEditor = editor;
+      button.setAttribute("aria-expanded", "true");
+      button.setAttribute("aria-controls", panel.id);
+      body.focus();
+      panel.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (error) {
+      const note = el("p", "chapter-edit-error", error.message);
+      button.after(note);
+      setTimeout(() => note.remove(), 8000);
+    } finally {
+      pendingEditorOpen = false;
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
+  }
+
+  async function saveChapterEdit(event, editor) {
+    event.preventDefault();
+    if (activeChapterEditor !== editor || mode !== "author" || !session) return;
+    const heading = editor.panel.querySelector(".chapter-edit-heading").value.trim();
+    const body = editor.panel.querySelector(".chapter-edit-body").value;
+    const note = editor.panel.querySelector(".chapter-edit-note");
+    const button = editor.panel.querySelector('button[type="submit"]');
+    if (!heading || !body.trim()) {
+      note.textContent = "章节标题和正文都不能留空。";
+      return;
+    }
+    if (heading === editor.base.heading && body === editor.base.body) {
+      note.textContent = "还没有修改内容。";
+      return;
+    }
+    const signature = JSON.stringify({ heading, body, revision: editor.base.revision || 0 });
+    if (signature !== editor.requestSignature) {
+      editor.requestSignature = signature;
+      editor.requestId = crypto.randomUUID();
+    }
+    button.disabled = true;
+    note.textContent = "正在保存修改……";
+    try {
+      const data = await api(`/api/chapters/${editor.article.id}/edit`, "POST", {
+        heading, body, revision: editor.base.revision || 0, requestId: editor.requestId,
+      });
+      if (!data.chapter) throw new Error("修改已提交，但尚未收到章节信息；请刷新页面确认。");
+      applyChapter(data.chapter);
+      closeChapterEditor();
+      editor.button.focus();
+      const status = el("p", "chapter-edit-saved", `已保存修改 · ${realDate(data.chapter.updatedAt)}`);
+      editor.button.after(status);
+      setTimeout(() => status.remove(), 8000);
+    } catch (error) {
+      note.textContent = error.message;
+    } finally { button.disabled = false; }
+  }
+
   function appendChapter(chapter) {
     if (!chapter || !/^[a-z0-9-]+$/.test(chapter.id) || document.getElementById(chapter.id)) return;
     const chapters = document.querySelector(".chapters");
@@ -513,7 +761,7 @@
       avatar.setAttribute("aria-label", `${names[chapter.author]}的头像`);
       byline.append(avatar, el("strong", "", `执笔 · ${names[chapter.author]}`));
       if (chapter.publishedAt) {
-        const time = el("time", "", `${realDate(chapter.publishedAt)} 更新`);
+        const time = el("time", "", `${realDate(chapter.publishedAt)} 发布`);
         time.dateTime = chapter.publishedAt;
         byline.append(time);
       }
@@ -523,6 +771,7 @@
     article.append(byline);
     const prose = el("div", "prose");
     for (const text of (chapter.body || "").split(/\n+/).map((piece) => piece.trim()).filter(Boolean)) prose.append(el("p", "", text));
+    renderChapterIllustration(prose, chapter.id);
     article.append(prose);
     const interactions = el("div", "chapter-interactions");
     const actions = el("div", "chapter-actions");
@@ -541,6 +790,7 @@
     interactions.append(actions, discussion);
     article.append(interactions);
     chapters.append(article);
+    renderEditHistory(article, chapter);
     const rail = document.querySelector(".chapter-rail > div");
     const link = el("a", "", chapter.heading);
     link.href = `#${chapter.id}`;
@@ -549,6 +799,7 @@
     const count = document.querySelector(".chapter-count");
     if (count) count.textContent = `共 ${index} 段 · 持续连载`;
     document.dispatchEvent(new CustomEvent("story:chapter-added", { detail: { chapterId: chapter.id } }));
+    showChapterEditButtons();
   }
 
   async function syncPublicChapters() {
@@ -557,7 +808,7 @@
       const response = await fetch(`${publicApiBase}/api/story`, { cache: "no-store", mode: "cors" });
       if (!response.ok) return;
       const data = await response.json();
-      if (Array.isArray(data.chapters)) for (const chapter of data.chapters) appendChapter(chapter);
+      if (Array.isArray(data.chapters)) for (const chapter of data.chapters) applyChapter(chapter);
     } catch { /* The published static chapters stay readable if the API is offline. */ }
   }
 
@@ -581,7 +832,7 @@
         body, storyTime: `${date}T00:00`, viewpoint, requestId: publicationId,
       });
       if (!data.chapter) throw new Error("章节已经提交，但尚未收到章节信息；请刷新检查文末。");
-      appendChapter(data.chapter);
+      applyChapter(data.chapter);
       form.querySelector("#writing-body").value = "";
       form.querySelector("#writing-count").textContent = "0 字 · 发布后接到文末，显示你的头像与更新日期";
       requestSignature = null; publicationId = null;
