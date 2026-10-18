@@ -584,7 +584,7 @@
     previous?.remove();
     oldDetails?.remove();
     const history = Array.isArray(chapter.editHistory) ? chapter.editHistory : [];
-    if (!chapter.updatedAt && !history.length) return;
+    if (!history.length) return;
     const editedAt = chapter.updatedAt || history.at(-1)?.editedAt;
     if (editedAt) {
       const lastEdited = el("p", "chapter-last-edited");
@@ -594,7 +594,6 @@
       lastEdited.append(time);
       article.querySelector(".prose")?.before(lastEdited);
     }
-    if (!history.length) return;
     const details = el("details", "chapter-edit-history");
     details.append(el("summary", "", `修改记录 · ${history.length} 次`));
     const list = el("ol");
