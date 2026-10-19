@@ -46,6 +46,7 @@
     { "chapterId": "legacy-12", "after": "也十分严肃地坐在了我的对面", "src": "/assets/chapter-12-v2.png", "alt": "周正钦与徐长卿在客栈桌边相对而坐", "caption": "客栈会面" },
     { "chapterId": "legacy-15", "after": "他枯瘦的手慢慢抬起来落在我的头上", "src": "/assets/chapter-15.webp", "alt": "三妹回到临州家中，腿伤的父亲轻轻抚她的头", "caption": "回家" },
     { "chapterId": "new-20261013-01", "after": "院门外有两道浅浅的车辙", "src": "/assets/chapter-17.webp", "alt": "清晨的尤家院门敞着，泥地留有两道浅浅的车辙", "caption": "空屋" },
+    { "chapterId": "chapter-1", "after": "可那只木匣，我瞒下了。", "src": "/assets/chapter-18-wooden-box.jpg", "alt": "北宋徐府深夜，徐长卿在灯下把闭合木匣递给佟鼒，案上留着账册，窗外有人影逼近", "caption": "木匣" },
     { "chapterId": "chapter-2", "after": "我一眼瞥见衣襟里侧，用红线绣着一朵野蓟花。", "src": "/assets/chapter-19-thistle-v2.jpg", "alt": "北宋刘府洗衣院中，十五岁的尤小灯翻开旧青布衫，在衣襟内侧发现红线绣的野蓟花", "caption": "蓟花" }
   ],
   "chapters": [
