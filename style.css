@@ -106,7 +106,7 @@ a { color: inherit; }
 .intro-name-seal { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border: 1px solid #bed0bd; border-radius: 50%; background: #f4f8f1; color: #92aa95; box-shadow: inset 0 0 0 2px #fffdf7, inset 0 0 0 3px #d2dfd0; transform: rotate(-10deg); font: 500 22px/1 var(--font-reading); }
 .intro-card p { margin: 0; color: var(--ink-soft); font: 13px/1.85 var(--font-reading); }
 
-.reading-section { max-width: 1220px; margin: auto; padding: 36px 35px 70px; }
+.reading-section { max-width: 1220px; margin: auto; padding: 36px 60px 70px 35px; }
 .reading-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding-top: 58px; }
 .reading-head h2, .comments-heading h2 { margin: 10px 0 0; font: 500 clamp(28px, 3vw, 38px)/1.35 var(--font-reading); letter-spacing: .1em; }
 .chapter-count { color: var(--ink-faint); font: 11px/1.6 var(--font-ui); letter-spacing: .12em; white-space: nowrap; }
@@ -118,12 +118,21 @@ a { color: inherit; }
 .chapter-author-option input:checked + .chapter-author-switch { background: var(--jade-deep); border-color: var(--jade-deep); }
 .chapter-author-option input:checked + .chapter-author-switch::after { transform: translateX(14px); }
 .chapter-author-option input:focus-visible + .chapter-author-switch { outline: 2px solid var(--seal); outline-offset: 3px; }
-.reading-layout { display: grid; grid-template-columns: 205px minmax(0, 1fr); gap: clamp(30px, 6vw, 82px); padding-top: 50px; }
-.chapter-rail { position: sticky; top: 24px; align-self: start; padding-top: 9px; border-top: 1px solid var(--line); }
-.chapter-rail > p, .chapter-rail > span { display: block; margin: 0 0 19px; color: var(--seal); font: 10px/1.5 var(--font-ui); letter-spacing: .22em; }
-.chapter-rail button, .chapter-rail a { display: block; width: 100%; border: 0; border-left: 1px solid #d4ccbb; padding: 10px 0 10px 15px; background: none; color: var(--ink-faint); text-align: left; text-decoration: none; font: 12px/1.7 var(--font-reading); transition: color .2s, border-color .2s; }
-.chapter-rail button:hover, .chapter-rail a:hover, .chapter-rail .active { color: var(--jade-deep); border-left-color: var(--jade-deep); }
-.chapters { min-width: 0; max-width: 760px; }
+.reading-layout { display: block; padding-top: 50px; }
+.chapter-rail { position: fixed; z-index: 35; top: 50%; right: 0; width: 44px; max-height: min(72vh, 680px); transform: translateY(-50%); border: 1px solid #d5c6aa; border-right: 0; border-radius: 7px 0 0 7px; background: #fffaf0; box-shadow: -8px 10px 27px #4a402020; }
+.chapter-rail[open] { width: min(332px, calc(100vw - 32px)); }
+.chapter-rail summary { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 130px; padding: 16px 8px; color: var(--seal); cursor: pointer; list-style: none; writing-mode: vertical-rl; font: 600 11px/1.4 var(--font-ui); letter-spacing: .23em; }
+.chapter-rail summary::-webkit-details-marker { display: none; }
+.chapter-rail summary:hover { background: #f3ebdc; color: var(--jade-deep); }
+.chapter-rail[open] summary { justify-content: space-between; min-height: 51px; padding: 13px 17px; border-bottom: 1px solid var(--line); writing-mode: horizontal-tb; }
+.chapter-rail-caret::before { content: '‹'; font: 24px/1 var(--font-reading); letter-spacing: 0; }
+.chapter-rail[open] .chapter-rail-caret::before { content: '×'; }
+.chapter-rail:not([open]) > div { display: none; }
+.chapter-rail > div { max-height: min(calc(72vh - 51px), 629px); overflow-y: auto; overscroll-behavior: contain; padding: 8px 10px 14px; scrollbar-width: thin; }
+.chapter-rail a { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 5px; width: 100%; border-left: 1px solid #d4ccbb; padding: 10px 7px 10px 12px; color: var(--ink-faint); text-align: left; text-decoration: none; font: 12px/1.7 var(--font-reading); transition: color .2s, border-color .2s, background .2s; }
+.chapter-rail a:hover, .chapter-rail .active { color: var(--jade-deep); border-left-color: var(--jade-deep); background: #eff2e9; }
+.chapter-rail a span { color: var(--seal); font: 10px/1.7 var(--font-ui); }
+.chapters { min-width: 0; max-width: 760px; margin: 0 auto; }
 .story-divider { margin: 0 0 58px; padding: 17px 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; color: var(--ink-faint); font: 11px/1.8 var(--font-reading); letter-spacing: .15em; overflow-wrap: anywhere; }
 .chapter { padding-bottom: 70px; margin-bottom: 68px; border-bottom: 1px solid var(--line); scroll-margin-top: 35px; }
 .chapter:last-child { border-bottom: 0; margin-bottom: 0; }
@@ -254,13 +263,13 @@ label > input, label > textarea, label > select { display: block; width: 100%; m
   .intro-name-row { margin-top: 16px; }
   .intro-name-seal { width: 34px; height: 34px; font-size: 19px; }
   .intro-card p { font-size: 12px; }
-  .reading-section { padding: 28px 22px 60px; }
+  .reading-section { padding: 28px 60px 60px 22px; }
   .reading-head { padding-top: 40px; }
-  .reading-layout { display: block; padding-top: 35px; }
-  .chapter-rail { position: static; display: flex; gap: 2px; overflow-x: auto; margin-bottom: 37px; padding: 9px 0 0; white-space: nowrap; scrollbar-width: thin; }
-  .chapter-rail > p, .chapter-rail > span { display: none; }
-  .chapter-rail a, .chapter-rail button { width: auto; flex: none; padding: 6px 10px; border-left: 0; border-bottom: 1px solid #d4ccbb; }
-  .chapter-rail .active { border-bottom-color: var(--jade-deep); }
+  .reading-layout { padding-top: 35px; }
+  .chapter-rail { width: 39px; }
+  .chapter-rail[open] { width: min(304px, calc(100vw - 24px)); }
+  .chapter-rail summary { min-height: 116px; }
+  .chapter-rail[open] summary { min-height: 51px; }
   .chapter { margin-bottom: 47px; padding-bottom: 45px; }
   .prose { font-size: 15px; line-height: 2.1; }
   .comments-section { margin-bottom: 35px; padding: 40px 22px 55px; }
@@ -301,9 +310,6 @@ label > input, label > textarea, label > select { display: block; width: 100%; m
 .intro-heading p { margin: 0; max-width: 690px; color: var(--ink-soft); font: 13px/1.8 var(--font-reading); }
 .intro-card { display: flex; flex-direction: column; justify-content: space-between; }
 .intro-card small { position: relative; z-index: 1; display: block; color: var(--ink-faint); font: 11px/1.5 var(--font-ui); letter-spacing: .1em; }
-.chapter-rail > div { max-height: 70vh; overflow-y: auto; scrollbar-width: thin; }
-.chapter-rail a { display: grid; grid-template-columns: 2.2em minmax(0,1fr); gap: 5px; overflow: hidden; text-overflow: ellipsis; }
-.chapter-rail a span { color: var(--seal); font: 10px/1.7 var(--font-ui); }
 .story-divider { display: flex; align-items: center; justify-content: center; gap: 17px; }
 .story-divider i { width: 36px; height: 1px; background: var(--line); }
 .chapter-byline strong { color: var(--ink-soft); font-weight: 600; }
@@ -329,10 +335,6 @@ label > input, label > textarea, label > select { display: block; width: 100%; m
   .reading-head { align-items: flex-start; flex-direction: column; }
   .reading-options { justify-content: flex-start; }
   .workshop-top { flex-direction: column; align-items: flex-start; }
-  .chapter-rail { display: block; }
-  .chapter-rail > div { display: flex; overflow-x: auto; max-height: none; }
-  .chapter-rail a { display: block; }
-  .chapter-rail a span { margin-right: 5px; }
   .intro-heading h2 { font-size: 27px; }
   .login-art::after { bottom: -3px; height: 80%; }
   .login-art span:nth-child(2) { top: 8%; font-size: 31px; }

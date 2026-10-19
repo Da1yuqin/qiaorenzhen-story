@@ -13,6 +13,18 @@
     setAuthorDisplay(authorToggle.checked);
     try { localStorage.setItem(authorDisplayKey, String(authorToggle.checked)); } catch { /* The toggle still works for this visit. */ }
   });
+  const chapterRail = document.querySelector(".chapter-rail");
+  chapterRail?.addEventListener("click", (event) => {
+    if (event.target.closest("a[href^='#']")) chapterRail.open = false;
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (chapterRail?.open && !chapterRail.contains(event.target)) chapterRail.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !chapterRail?.open) return;
+    chapterRail.open = false;
+    chapterRail.querySelector("summary")?.focus();
+  });
   const popup = document.querySelector("#like-popup");
   const portrait = popup.querySelector(".like-popup > .author-avatar");
   const title = popup.querySelector("#popup-title");

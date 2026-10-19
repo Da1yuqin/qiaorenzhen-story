@@ -272,7 +272,7 @@ def main() -> None:
   <div id="author-workshop" hidden></div>
   <section class="reading-section" id="story-start" aria-labelledby="story-title">
     <div class="reading-head"><div><div class="section-label"><span>正文</span><i></i></div><h2 id="story-title">故事，从这里开始。</h2></div><div class="reading-options"><span class="chapter-count">共 {len(chapters)} 段 · 持续连载</span><label class="chapter-author-option"><input type="checkbox" id="chapter-author-toggle" checked><span class="chapter-author-switch" aria-hidden="true"></span><span>显示作者</span></label></div></div>
-    <div class="reading-layout"><aside class="chapter-rail"><span>卷页目录</span><div>{rail}</div></aside><div class="chapters">{content}</div></div>
+    <div class="reading-layout"><details class="chapter-rail"><summary><span>卷页目录</span><span class="chapter-rail-caret" aria-hidden="true"></span></summary><div role="navigation" aria-label="章节目录">{rail}</div></details><div class="chapters">{content}</div></div>
   </section>
   <section class="reader-end"><div class="end-ornament">✦</div><p>后来的事，还要等下一位执笔的人。</p><button type="button" class="story-like" aria-pressed="false"><span class="heart-mark" aria-hidden="true">♡</span> 喜欢这个故事</button><span class="like-save-note">喜欢会先记在当前浏览器。</span></section>
   <section class="comments-section" id="story-comments" aria-labelledby="story-comments-title">
