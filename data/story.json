@@ -47,7 +47,10 @@
     { "chapterId": "legacy-15", "after": "他枯瘦的手慢慢抬起来落在我的头上", "src": "/assets/chapter-15.webp", "alt": "三妹回到临州家中，腿伤的父亲轻轻抚她的头", "caption": "回家" },
     { "chapterId": "new-20261013-01", "after": "院门外有两道浅浅的车辙", "src": "/assets/chapter-17.webp", "alt": "清晨的尤家院门敞着，泥地留有两道浅浅的车辙", "caption": "空屋" },
     { "chapterId": "chapter-1", "after": "可那只木匣，我瞒下了。", "src": "/assets/chapter-18-wooden-box.jpg", "alt": "北宋徐府深夜，徐长卿在灯下把闭合木匣递给佟鼒，案上留着账册，窗外有人影逼近", "caption": "木匣" },
-    { "chapterId": "chapter-2", "after": "我一眼瞥见衣襟里侧，用红线绣着一朵野蓟花。", "src": "/assets/chapter-19-thistle-v2.jpg", "alt": "北宋刘府洗衣院中，十五岁的尤小灯翻开旧青布衫，在衣襟内侧发现红线绣的野蓟花", "caption": "蓟花" }
+    { "chapterId": "chapter-2", "after": "我一眼瞥见衣襟里侧，用红线绣着一朵野蓟花。", "src": "/assets/chapter-19-thistle-v2.jpg", "alt": "北宋刘府洗衣院中，十五岁的尤小灯翻开旧青布衫，在衣襟内侧发现红线绣的野蓟花", "caption": "蓟花" },
+    { "chapterId": "chapter-4", "after": "我认得她。就算她瘦了，脸上多了伤，也还是我五妹。", "src": "/assets/chapter-21-sisters.jpg", "alt": "十五岁的尤三妹在西庄后屋认出清瘦的五妹，五妹旧青布袖口露着红线绣的野蓟花", "caption": "姐妹重逢" },
+    { "chapterId": "chapter-7", "after": "窗纸糊得厚，我看不清她的脸，只看得见她的影子，站得笔直。", "src": "/assets/chapter-24-paper-window.jpg", "alt": "周正钦在偏房内隔厚纸窗与缙云低声交谈，窗外只见她提着药箱的笔直剪影", "caption": "纸窗夜谈" },
+    { "chapterId": "chapter-8", "after": "行，汴京赛关索，你往后总会知道。", "src": "/assets/chapter-25-sai-guansuo.jpg", "alt": "高大健壮的女子相扑选手赛关索穿骑装、腰别马鞭闯入刘府，看向栗发红衣的缙云时神情忽然柔和", "caption": "不速之客 · 赛关索" }
   ],
   "chapters": [
     {
